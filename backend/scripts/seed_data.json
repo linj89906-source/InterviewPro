@@ -1,0 +1,188 @@
+[
+  {
+    "category": "Java",
+    "title": "HashMap 底层实现原理",
+    "content": "HashMap 基于数组+链表+红黑树实现。JDK 1.8 之前是数组+链表，1.8 之后当链表长度超过 8 且数组长度 >= 64 时转为红黑树。\n\n核心概念：\n- 默认初始容量 16，负载因子 0.75\n- put 操作：计算 hashCode -> 高位运算 -> 取模 -> 遍历链表/红黑树插入\n- 扩容：容量翻倍，rehash 重新分配\n- 线程不安全：多线程 put 可能导致死循环或数据覆盖\n\n面试考点：为什么用红黑树不用 AVL 树？红黑树插入删除旋转次数较少。",
+    "source": "面试高频题"
+  },
+  {
+    "category": "Java",
+    "title": "Java 内存模型 JMM 与 volatile",
+    "content": "JMM 定义了线程和主内存之间的抽象关系，规定了共享变量的可见性、有序性和原子性。\n\nvolatile 关键字：\n- 保证可见性：修改后立即刷新到主内存，其他线程立即可见\n- 禁止指令重排序：通过内存屏障实现\n- 不保证原子性：i++ 这种复合操作仍然不安全\n\nhappens-before 原则：程序顺序规则、volatile 规则、锁规则、传递性规则。\n\n实际应用：DCL 单例模式必须用 volatile 修饰 instance。",
+    "source": "JVM 核心"
+  },
+  {
+    "category": "Java",
+    "title": "synchronized 锁升级过程",
+    "content": "JDK 1.6 后引入锁升级：无锁 -> 偏向锁 -> 轻量级锁 -> 重量级锁。锁只能升级不能降级。\n\n偏向锁：Mark Word 记录线程 ID，同一线程再次进入无需 CAS\n轻量级锁：通过 CAS 竞争，自旋等待\n重量级锁：膨胀后通过 monitor 实现，线程阻塞\n\n对比 Lock：synchronized JVM 管理自动释放，Lock 需手动 unlock，但提供 tryLock、可中断锁、公平锁。",
+    "source": "并发编程"
+  },
+  {
+    "category": "Java",
+    "title": "线程池核心参数与拒绝策略",
+    "content": "ThreadPoolExecutor 7 个参数：corePoolSize、maximumPoolSize、keepAliveTime、unit、workQueue、threadFactory、handler。\n\n4 种拒绝策略：\n- AbortPolicy：抛异常（默认）\n- CallerRunsPolicy：调用者线程执行\n- DiscardPolicy：直接丢弃\n- DiscardOldestPolicy：丢弃最旧任务\n\n执行流程：核心线程 -> 队列 -> 最大线程 -> 拒绝策略。\n合理配置：CPU 密集型 Ncpu+1，IO 密集型 2*Ncpu。",
+    "source": "并发编程"
+  },
+  {
+    "category": "Java",
+    "title": "GC 算法与垃圾回收器",
+    "content": "垃圾回收算法：标记-清除（碎片）、标记-整理（解决碎片）、复制算法（新生代）、分代收集。\n\n经典回收器：\n- Serial：单线程，客户端\n- Parallel：多线程，吞吐量优先\n- CMS：并发标记清除，低延迟，缺点浮动垃圾碎片\n- G1：区域化分代，可预测停顿，JDK 9 默认\n- ZGC：超低延迟 <10ms，TB 级堆\n\n判断死亡：引用计数法（循环引用问题）、可达性分析（GC Roots）。",
+    "source": "JVM 核心"
+  },
+  {
+    "category": "Java",
+    "title": "String StringBuilder StringBuffer 区别",
+    "content": "String 不可变类，被 final 修饰，每次修改创建新对象。\nStringBuilder/StringBuffer 继承 AbstractStringBuilder，内部 char[] 存储，初始容量 16，扩容 原长度*2+2。\n\n区别：\n- StringBuffer：线程安全，synchronized 修饰，性能较低\n- StringBuilder：线程不安全，性能较高\n\n字符串常量池：new String(\"abc\") 创建 1-2 个对象。intern() 将字符串放入常量池。",
+    "source": "Java 基础"
+  },
+  {
+    "category": "Java",
+    "title": "Spring IOC 与 AOP 原理",
+    "content": "IOC：容器通过 DI 管理 Bean 创建和依赖，BeanFactory 底层容器，ApplicationContext 扩展。Bean 生命周期：实例化->属性填充->初始化->使用->销毁。作用域：singleton、prototype、request、session。\n\nAOP：基于动态代理。JDK 动态代理代理接口，CGLIB 代理类。核心概念：切面、连接点、通知、切入点。通知类型：@Before、@After、@Around、@AfterReturning、@AfterThrowing。\n\nSpring Boot 自动配置通过 @EnableAutoConfiguration 和 spring.factories。",
+    "source": "Spring 框架"
+  },
+  {
+    "category": "Python",
+    "title": "GIL 全局解释器锁详解",
+    "content": "GIL 是 CPython 中的互斥锁，确保同一时刻只有一个线程执行 Python 字节码。\n\n原因：CPython 内存管理（引用计数）不是线程安全的。\n\n影响：\n- CPU 密集型：多线程反而更慢（切换开销+GIL竞争）\n- IO 密集型：GIL 在 IO 时释放，多线程有效\n\n绕过 GIL：\n1. 多进程 multiprocessing\n2. C 扩展手动释放 GIL\n3. 其他解释器：Jython 无 GIL、PyPy 有 GIL 但 JIT\n\nPython 3.9+ subinterpreters 可并行。PEP 703 未来可能移除 GIL。",
+    "source": "Python 进阶"
+  },
+  {
+    "category": "Python",
+    "title": "装饰器原理与常用场景",
+    "content": "装饰器本质是接受函数作参数、返回新函数的高阶函数。@decorator 等价于 func = decorator(func)。\n\n无参装饰器：def log(func): def wrapper(...): ... return wrapper。\n有参装饰器三层嵌套。\n\n常见应用：日志记录、计时、权限校验、缓存 @lru_cache、重试、Flask/Django 路由注册。@staticmethod、@classmethod、@property 也是装饰器。\nfunctools.wraps 保留原函数元信息。",
+    "source": "Python 进阶"
+  },
+  {
+    "category": "Python",
+    "title": "生成器与协程 yield async",
+    "content": "生成器：包含 yield 的函数，惰性生成值。\n\n特点：内存高效不需要一次性存储、状态保存每次 yield 后保存局部变量、只能遍历一次。\nyield from：委托给子生成器。\n生成器表达式：(x**2 for x in range(10))。\n\nasync/await 协程 Python 3.5+：\n- async def 定义协程函数\n- await 挂起协程等待异步操作\n- asyncio 事件循环驱动调度\n- 与生成器不同：协程不能直接用 next()",
+    "source": "Python 进阶"
+  },
+  {
+    "category": "Python",
+    "title": "Python 内存管理与垃圾回收",
+    "content": "Python 采用引用计数为主、标记清除和分代回收为辅。\n\n引用计数：每个对象维护 ob_refcnt，为 0 时释放。缺点：循环引用无法回收。\n标记清除：处理容器对象的循环引用，从根对象出发标记可达。\n分代回收：0代新对象回收最频繁、1代、2代长期存活回收最少。\n\n内存池 PyMalloc：管理 <=256 字节小块内存，避免频繁 malloc/free。超过 256 字节直接用 C malloc。",
+    "source": "Python 核心"
+  },
+  {
+    "category": "Python",
+    "title": "列表元组字典集合底层实现",
+    "content": "列表 list：动态数组，预分配 over-allocation，扩容 new_size+(new_size>>3)+6。append 均摊 O(1)，insert/pop(0) 为 O(n)。\n元组 tuple：不可变，无 over-allocation，可哈希作字典 key。\n字典 dict：Python 3.6+ 紧凑字典，哈希表+索引数组保持插入顺序。默认初始容量 8，负载因子 2/3 时扩容翻倍。查找 O(1)。\n集合 set：类似字典只存 key。支持交集并集差集。frozenset 不可变集合可哈希。",
+    "source": "Python 核心"
+  },
+  {
+    "category": "Python",
+    "title": "asyncio 异步编程模型",
+    "content": "asyncio 基于事件循环实现协程调度。\n\n核心概念：coroutine 协程函数、task 包装协程交事件循环调度、future 未来结果。\n\n事件循环工作：注册协程和 IO 事件 -> 循环检查就绪事件 -> 执行回调恢复协程 -> 无就绪事件则等待。\n\n关键 API：asyncio.run() 运行主协程、asyncio.gather() 并发执行、asyncio.create_task() 创建后台任务。\n\n与线程对比：协程切换由代码显式控制无竞态条件，无需锁。适合 IO 密集型。",
+    "source": "Python 进阶"
+  },
+  {
+    "category": "算法",
+    "title": "排序算法对比总结",
+    "content": "常见排序复杂度：冒泡 O(n^2) 稳定、选择 O(n^2) 不稳定、插入 O(n^2) 稳定、希尔 O(n^1.3) 不稳定、归并 O(nlogn) 稳定、快排 O(nlogn) 不稳定、堆排 O(nlogn) 不稳定、计数 O(n+k) 稳定。\n\n快排优化：三数取中选 pivot 避免最坏、小数组改用插入排序、尾递归优化、三路快排处理重复元素。\n\n面试重点：快排 partition、归并 merge 能手写。",
+    "source": "算法基础"
+  },
+  {
+    "category": "算法",
+    "title": "动态规划解题框架",
+    "content": "DP 5步法：1.定义状态 dp[i]含义 2.状态转移方程 dp[i]=f(dp[i-1]) 3.初始条件 4.遍历顺序 5.结果 dp[n]或max(dp)。\n\n线性 DP：爬楼梯 dp[i]=dp[i-1]+dp[i-2]、最大子数组和。\n背包：0-1背包 dp[i][w]=max(dp[i-1][w], dp[i-1][w-wt[i]]+val[i])，完全背包内层正序。\n区间 DP：最长回文子串。\n状态压缩：滚动数组优化空间。\n背包一维优化：0-1倒序、完全正序。",
+    "source": "算法进阶"
+  },
+  {
+    "category": "算法",
+    "title": "二叉树遍历 递归与迭代",
+    "content": "DFS深度优先：前序根左右可用于序列化、中序左根右 BST得有序序列、后序左右根计算子树高度。\n\n迭代实现：前序压右再压左、中序一直向左到底弹出转右子树、后序前序根右左反转或标记法。\n\nBFS广度优先层序遍历：队列按层处理。\n\nMorris遍历 O(1)空间利用空闲指针。\n\n常见题型：最大深度递归 max(depth(L),depth(R))+1、对称二叉树、最近公共祖先后序查找。",
+    "source": "数据结构"
+  },
+  {
+    "category": "算法",
+    "title": "链表高频面试题",
+    "content": "核心技巧：哑节点简化头处理、双指针快慢找中点检测环、递归反转链表。\n\n反转链表：迭代 pre/cur/next三指针 O(n)O(1)、递归 head.next.next=head。\n检测环：快慢指针相遇则有环。找入环点一个从头一个从相遇点各走1步。\n合并有序链表：双指针比较值。\n删除倒数第N节点：快指针先走N步。\nLRU缓存：哈希表+双向链表 get/put均O(1)。",
+    "source": "数据结构"
+  },
+  {
+    "category": "算法",
+    "title": "二分查找变体与边界处理",
+    "content": "标准模板：while left<=right，mid=left+(right-left)//2防溢出，if==return elif< left=mid+1 else right=mid-1。\n\n变体：查找第一个等于target、最后一个等于target、第一个大于等于target、最后一个小于等于target。\n\n旋转排序数组搜索：判断mid在左半段还是右半段，再判断target在哪个有序段。\n\n边界：left+(right-left)//2防溢出、循环条件依区间定义。",
+    "source": "算法基础"
+  },
+  {
+    "category": "算法",
+    "title": "图算法 BFS DFS 最短路径",
+    "content": "图表示：邻接矩阵 O(V^2) vs 邻接表 O(V+E)。\n\nBFS：队列实现求无权图最短路径 O(V+E)。\nDFS：递归栈 应用拓扑排序连通分量环检测。\nDijkstra：单源最短路径非负权重，贪心优先队列优化 O((V+E)logV)。\n拓扑排序：Kahn BFS入度法或DFS后序反转，能检测环。\n最小生成树：Prim类似Dijkstra、Kruskal按边权排序并查集。\n并查集：路径压缩+按秩合并均摊O(alpha(n))。",
+    "source": "算法进阶"
+  },
+  {
+    "category": "数据库",
+    "title": "MySQL 索引原理与优化",
+    "content": "InnoDB 默认 B+ 树索引。B+ 树特点：所有数据存叶子节点，非叶节点只存 key，叶子双向链表连接支持范围查询，树高度 2-4 层 IO 次数少。\n\n聚集索引：叶子存整行数据，主键默认聚集索引。\n二级索引：叶子存主键值，需回表。\n覆盖索引：查询列全在索引中不回表，Extra 显示 Using index。\n最左前缀原则：联合索引 (a,b,c) 须从 a 开始按序匹配。\n索引失效：使用函数、隐式类型转换、LIKE 前导%、OR 中无索引。",
+    "source": "MySQL 核心"
+  },
+  {
+    "category": "数据库",
+    "title": "MySQL 事务与隔离级别",
+    "content": "ACID：原子性 undo log回滚、一致性由其他保证、隔离性 MVCC+锁、持久性 redo log。\n\n四种隔离级别：READ UNCOMMITTED有脏读不可重复读幻读、READ COMMITTED无脏读、REPEATABLE READ默认无脏读不可重复读部分解决幻读、SERIALIZABLE全部解决。\n\nMVCC原理：每行有 trx_id 和 roll_pointer，ReadView 判断可见性。RR级别事务开始创建ReadView，RC每次查询创建。\nNext-Key Lock 记录锁+间隙锁解决幻读。",
+    "source": "MySQL 核心"
+  },
+  {
+    "category": "数据库",
+    "title": "SQL 优化实战技巧",
+    "content": "EXPLAIN关键字段：type访问类型 const>eq_ref>ref>range>index>ALL、key实际索引、rows扫描行数、Extra Using filesort/Using temporary需优化。\n\n优化策略：SELECT只查需要的列、WHERE顺序匹配联合索引最左前缀、LIMIT大偏移先用索引找起始id再JOIN、小表驱动大表、避免子查询改用JOIN。\n\n深分页优化：WHERE id>last_id ORDER BY id LIMIT n。\n慢查询日志：long_query_time设置阈值，mysqldumpslow分析。",
+    "source": "MySQL 实战"
+  },
+  {
+    "category": "数据库",
+    "title": "Redis 数据结构与应用场景",
+    "content": "5种基本类型：\nString SDS实现二进制安全，缓存计数器分布式锁。\nHash ziplist/hashtable，存储对象购物车。\nList quicklist，消息队列(LPUSH/RPOP)最新列表。\nSet hashtable，标签共同好友。\nSorted Set skiplist+hashtable，排行榜延迟队列。\n\n高级结构：Bitmap签到统计、HyperLogLog UV统计误差0.81%、GEO附近的人、Stream持久化消息队列。",
+    "source": "Redis 核心"
+  },
+  {
+    "category": "数据库",
+    "title": "Redis 持久化 RDB 与 AOF",
+    "content": "RDB：指定时间间隔快照，save 900 1即900秒内1次修改触发。紧凑二进制恢复快，可能丢最后快照后数据。fork子进程不阻塞主进程。\n\nAOF：记录每个写操作命令。appendfsync: always每次刷盘/everysec每秒推荐/no。AOF重写压缩冗余命令。最多丢1秒数据。\n\n混合持久化 Redis 4.0+：AOF重写前半RDB后半AOF增量，兼顾速度和安全。\n\n最佳实践：混合持久化。纯缓存场景可关闭持久化。",
+    "source": "Redis 核心"
+  },
+  {
+    "category": "数据库",
+    "title": "缓存穿透击穿雪崩解决方案",
+    "content": "缓存穿透：查询不存在的数据。解决：布隆过滤器提前过滤、缓存空值设短过期。\n\n缓存击穿：热点key过期大量请求打数据库。解决：互斥锁获锁查库回写、逻辑过期value含逻辑过期时间。\n\n缓存雪崩：大量key同时过期或Redis宕机。解决：过期时间加随机值、多级缓存本地+Redis、限流降级、Redis高可用主从哨兵集群。\n\n缓存一致性：先更新数据库再删除缓存Cache Aside、延迟双删、订阅binlog异步更新Canal。",
+    "source": "Redis 进阶"
+  },
+  {
+    "category": "网络",
+    "title": "TCP 三次握手与四次挥手",
+    "content": "三次握手：客户端SYN->服务器、服务器SYN+ACK->客户端、客户端ACK->服务器。为什么三次：防历史连接重复SYN、双方确认收发能力。\n\n四次挥手：客户端FIN->服务器、服务器ACK->客户端、服务器FIN->客户端、客户端ACK->服务器。为什么四次：双方各需FIN和ACK，服务器可能还有数据。\n\nTIME_WAIT等2MSL：确保最后ACK到达、让旧连接数据包消失。",
+    "source": "TCP/IP 核心"
+  },
+  {
+    "category": "网络",
+    "title": "TCP 拥塞控制算法",
+    "content": "四大算法：\n1.慢启动 cwnd从1开始指数增长直到ssthresh或丢包\n2.拥塞避免 cwnd>=ssthresh后每RTT线性增长\n3.快速重传 收到3个重复ACK立即重传\n4.快速恢复 cwnd减半进入快速恢复\n\n超时重传vs快速重传：超时cwnd重置为1惩罚更重，快速重传cwnd减半。\n\n现代TCP：CUBIC Linux默认、BBR Google开发。",
+    "source": "TCP/IP 核心"
+  },
+  {
+    "category": "网络",
+    "title": "HTTP 协议版本演进",
+    "content": "HTTP/1.0：短连接每次新TCP。\nHTTP/1.1：持久连接Keep-Alive、管线化但队头阻塞、Host头支持虚拟主机、Cache-Control/ETag。\nHTTP/2：二进制分帧高效、多路复用并发、头部压缩HPACK、服务器推送。仍TCP层队头阻塞。\nHTTP/3：基于QUIC(UDP)内置TLS1.3、0-RTT连接建立、彻底解决队头阻塞、连接迁移。\n\nHTTPS=HTTP+TLS：证书链验证+非对称加密交换密钥+对称加密传输。TLS1.3握手仅1-RTT。",
+    "source": "HTTP 协议"
+  },
+  {
+    "category": "网络",
+    "title": "DNS 解析全过程",
+    "content": "DNS默认UDP 53端口。\n\n递归+迭代查询：浏览器缓存->hosts文件->本地DNS->根域名服务器->顶级域(.com)->权威DNS返回IP。\n\n记录类型：A域名->IPv4、AAAA域名->IPv6、CNAME域名->域名别名、MX邮件服务器、NS DNS服务器、TXT文本。\n\nDNS负载均衡：一个域名多A记录轮询返回不同IP。\nCDN原理：DNS智能解析判断位置->最近CDN节点->未命中回源。\nDoH/DoT防DNS污染劫持。",
+    "source": "网络基础"
+  },
+  {
+    "category": "网络",
+    "title": "从输入URL到页面渲染全过程",
+    "content": "完整流程：\n1.URL解析协议域名端口路径\n2.DNS解析获取服务器IP\n3.TCP三次握手+HTTPS TLS握手\n4.发送HTTP请求\n5.服务器处理负载均衡反向代理\n6.浏览器解析渲染：解析HTML->DOM树、CSS->CSSOM树->构建Render Tree->布局Reflow计算位置大小->绘制Paint填充像素->合成Composite GPU\n7.四次挥手关闭连接\n\n优化：DNS预解析dns-prefetch、预连接preconnect、资源预加载preload。",
+    "source": "HTTP 协议"
+  },
+  {
+    "category": "网络",
+    "title": "Cookie Session Token JWT 详解",
+    "content": "HTTP无状态需额外机制维持会话。\n\nCookie：存客户端每次请求自动携带，4KB限制。属性Domain/Path/Expires/HttpOnly/Secure/SameSite。\n\nSession：存服务端通过Cookie中SessionID关联。分布式需共享Redis。\n\nToken：无状态服务端不存储。Header携带Authorization: Bearer <token>。\n\nJWT结构 Header.Payload.Signature。缺点无法主动失效，可黑名单或短过期+刷新缓解。\n\nOAuth2.0四种授权：授权码最安全、隐式、密码、客户端凭证。",
+    "source": "网络基础"
+  }
+]
